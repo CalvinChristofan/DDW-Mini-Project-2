@@ -11,7 +11,7 @@ users = pd.read_excel(filename, sheet_name="Users")
 # read the sheet with the name "Questions"
 #
 # question_data = None
-### your code ###
+question_data = pd.read_excel(filename, sheet_name="Questions")
 
 st.header("Questions List")
 st.write(question_data)
@@ -26,14 +26,14 @@ with st.form("new_question"):
     # pass on the math expression to the object
     #
     # evaluator = None
-    ### your code ###
+    evaluator = EvaluateExpression(expression)
 
     # TODO: Task 3
     # call the evaluate() method of the EvaluateExpression object
     # and store it
     #
     # answer = None
-    ### your code ###
+    answer = evaluator.evaluate()
 
     st.write("Answer:", answer)
 
@@ -47,12 +47,12 @@ if submit and expression and expression != "" and selected_users != []:
     #
     # read the Challenges worksheet into challenge_data variable
     # challenge_data = None
-    ### your code ###
+    challenge_data = pd.read_excel(filename, sheet_name="Challenges")
 
     #
     # read the Challenge-Users worksheet into assoc_data variable
     # assoc_data = None
-    ### your code ###
+    assoc_data = pd.read_excel(filename, sheet_name="Challenge-Users")
 
     question_id = len(question_data)
     challenge_id = len(challenge_data)
@@ -72,16 +72,16 @@ if submit and expression and expression != "" and selected_users != []:
         #
         # update the Questions worksheet
         # question_data.to_excel(...)
-        ### your code ###
+        question_data.to_excel(f, sheet_name="Questions", index=False)
 
         #
         # update the Challenges worksheet
         # challenge_data.to_excel(...)
-        ### your code ###
+        challenge_data.to_excel(f, sheet_name="Challenges", index=False)
         #
         # update the Challenge-Users worksheet
         # assoc_data.to_excel(...)
-        ### your code ###
+        assoc_data.to_excel(f, sheet_name="Challenge-Users", index=False)
 
     # st.cache_data.clear()
     st.rerun()
