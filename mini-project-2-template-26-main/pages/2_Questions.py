@@ -1,5 +1,6 @@
 import streamlit as st
 from library import EvaluateExpression
+from expression_utils import safe_evaluate
 import pandas as pd
 
 filename = "Mini Project 2 - Instructor Database.xlsx"
@@ -10,7 +11,6 @@ users = pd.read_excel(filename, sheet_name="Users")
 # TODO: Task 1
 # read the sheet with the name "Questions"
 #
-# question_data = None
 question_data = pd.read_excel(filename, sheet_name="Questions")
 
 st.header("Questions List")
@@ -19,39 +19,28 @@ st.write(question_data)
 st.header("Create New Question")
 with st.form("new_question"):
     expression = st.text_input("Write a Math expression:")
-    expression
 
-    # TODO: Task 2
-    # create an object instance of EvaluateExpression class
-    # pass on the math expression to the object
-    #
-    # evaluator = None
-    evaluator = EvaluateExpression(expression)
+    # TODO: Tasks 2 and 3
+    # The EvaluateExpression object is created and its evaluate() method is
+    # called inside safe_evaluate() (see expression_utils.py). The wrapper
+    # adds edge-case handling so any input — "2 +", "1/0", "2^3", "2 3",
+    # "-2+3" — shows a message or a correct answer instead of crashing.
+    answer, error = safe_evaluate(expression)
 
-    # TODO: Task 3
-    # call the evaluate() method of the EvaluateExpression object
-    # and store it
-    #
-    # answer = None
-    answer = evaluator.evaluate()
-
-    st.write("Answer:", answer)
+    if expression and error:
+        st.error(error)
+    elif expression:
+        st.write("Answer:", answer)
 
     selected_users = st.multiselect("Select Users to answer this challenge.", users["username"])
     submit = st.form_submit_button("Create Question")
 
-if submit and expression and expression != "" and selected_users != []:
+if submit and error is None and selected_users:
     # TODO: Task 4
-    # read Challenges and Challenge-Users tables 
+    # read Challenges and Challenge-Users tables
     # from the Excel file to update
     #
-    # read the Challenges worksheet into challenge_data variable
-    # challenge_data = None
     challenge_data = pd.read_excel(filename, sheet_name="Challenges")
-
-    #
-    # read the Challenge-Users worksheet into assoc_data variable
-    # assoc_data = None
     assoc_data = pd.read_excel(filename, sheet_name="Challenge-Users")
 
     question_id = len(question_data)
@@ -66,26 +55,13 @@ if submit and expression and expression != "" and selected_users != []:
         assoc_id += 1
 
     with pd.ExcelWriter(filename, mode='a', if_sheet_exists='replace') as f:
-        pass
         # TODO: Task 5
         # update the Excel file with the new data
         #
-        # update the Questions worksheet
-        # question_data.to_excel(...)
         question_data.to_excel(f, sheet_name="Questions", index=False)
-
-        #
-        # update the Challenges worksheet
-        # challenge_data.to_excel(...)
         challenge_data.to_excel(f, sheet_name="Challenges", index=False)
-        #
-        # update the Challenge-Users worksheet
-        # assoc_data.to_excel(...)
         assoc_data.to_excel(f, sheet_name="Challenge-Users", index=False)
 
-    # st.cache_data.clear()
     st.rerun()
-
-            
-
-
+elif submit and expression and error is None and not selected_users:
+    st.warning("Select at least one user to challenge.")
